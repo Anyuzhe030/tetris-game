@@ -53,10 +53,10 @@
         }
 
         #gameCanvas {
-            border: 4px solid #D393FF;  /* 边框颜色 = 紫色（和游戏内边界一致） */
+            border: 4px solid #4a0080;  /* 外边框 = 深紫色 */
             border-radius: 8px;
             background-color: #0a0a1a;
-            box-shadow: 0 0 30px rgba(211, 147, 255, 0.3); /* 发光效果也用紫色 */
+            box-shadow: 0 0 30px rgba(74, 0, 128, 0.4); /* 发光效果用深紫色 */
         }
 
         /* ========================
@@ -249,6 +249,11 @@
         @media (pointer: coarse) {
             .dialog { min-width: 300px; padding: 25px; }
             .dialog img { width: 200px; height: 200px; }
+            .dialog-btn {
+                display: block;
+                width: 100%;
+                margin: 10px 0 0 0 !important;
+            }
         }
 
         /* ========================
@@ -303,6 +308,7 @@
             <div class="touch-controls">
                 <div class="touch-row">
                     <div class="touch-btn" id="btnRotate">⟳</div>
+                    <div class="touch-btn" id="btnPause" style="background:rgba(255,200,50,0.15);border-color:rgba(255,200,50,0.3);">⏸</div>
                 </div>
                 <div class="touch-row" style="margin-top: 5px;">
                     <div class="touch-btn" id="btnLeft">◀</div>
@@ -343,7 +349,7 @@
             <h2>⏸ 游戏已暂停</h2>
             <img id="pauseImg" src="pause.jpg" alt="暂停图片"
                  onerror="this.style.display='none'">
-            <p class="dialog-hint">按 <strong>P</strong> 键继续游戏</p>
+            <p class="dialog-hint" id="pauseHint">按 <strong>P</strong> 键继续游戏</p>
         </div>
     </div>
 
@@ -378,7 +384,7 @@
 
     // 方块颜色（和 Java 版保持一致）
     const COLOR_BLOCK   = "#FFBBCF";  // 方块填充色（粉色）
-    const COLOR_BORDER  = "#D393FF";  // 边界颜色（紫色，和方块不同）
+    const COLOR_BORDER  = "#aaa1ce";  // 边界颜色（灰紫色，和方块颜色区分）
     const COLOR_EMPTY   = "#0a0a1a";  // 空格子背景（深蓝黑）
 
     // ========================
@@ -443,15 +449,16 @@
         // 遍历每个格子
         for (let i = 0; i < GAME_X; i++) {
             for (let j = 0; j < GAME_Y; j++) {
-                if (data[i][j] === 1) {
-                    // 有方块：画填充色
+                if (j === 0 || j === GAME_Y - 1 || i === GAME_X - 1) {
+                    // 边界：用和方块一样的样式（有间隙，不填满格子）
+                    ctx.fillStyle = COLOR_BORDER;
+                    ctx.fillRect(j * BLOCK_SIZE + 1, i * BLOCK_SIZE + 1,
+                                  BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                } else if (data[i][j] === 1) {
+                    // 非边界：有方块画填充色
                     ctx.fillStyle = COLOR_BLOCK;
                     ctx.fillRect(j * BLOCK_SIZE + 1, i * BLOCK_SIZE + 1,
                                   BLOCK_SIZE - 2, BLOCK_SIZE - 2);
-                } else if (j === 0 || j === GAME_Y - 1 || i === GAME_X - 1) {
-                    // 边界：画边界色
-                    ctx.fillStyle = COLOR_BORDER;
-                    ctx.fillRect(j * BLOCK_SIZE, i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
                 }
             }
         }
@@ -735,6 +742,10 @@
             statusText.textContent = "已暂停";
             statusText.className = "status-value paused";
             pauseDialog.classList.add("active");
+            // 如果是触屏设备，提示文字改为点击暂停按钮
+            if (window.matchMedia("(pointer: coarse)").matches) {
+                document.getElementById("pauseHint").innerHTML = "点击 <strong>⏸ 暂停键</strong> 继续游戏";
+            }
             if (gameLoopTimer) clearInterval(gameLoopTimer);
         } else {
             statusText.textContent = "运行中";
@@ -884,6 +895,9 @@
     });
     setupTouchButton("btnRotate", () => {
         rotateBlock();
+    });
+    setupTouchButton("btnPause", () => {
+        togglePause();
     });
 
     // ========================
