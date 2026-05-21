@@ -1,433 +1,538 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>俄罗斯方块</title>
     <style>
-        /* ========================
+      /* ========================
            基础样式
         ======================== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            /* 禁止文字选中，防止按方向键时选中文字 */
-            user-select: none;
-            -webkit-user-select: none;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        /* 禁止文字选中，防止按方向键时选中文字 */
+        user-select: none;
+        -webkit-user-select: none;
+      }
 
-        body {
-            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            overflow: hidden;
-        }
+      body {
+        font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        overflow: hidden;
+      }
 
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            color: #e0e0ff;
-        }
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        color: #e0e0ff;
+      }
 
-        /* ========================
+      /* ========================
            游戏主容器
         ======================== */
-        .game-wrapper {
-            display: flex;
-            align-items: flex-start;
-            gap: 20px;
-        }
+      .game-wrapper {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+      }
 
-        /* 游戏画布区域 */
-        .game-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+      /* 游戏画布区域 */
+      .game-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-        #gameCanvas {
-            border: 4px solid #9685a1;  /* 外边框 = 深紫色 */
-            border-radius: 8px;
-            background-color: #0a0a1a;
-            box-shadow: 0 0 30px rgba(74, 0, 128, 0.4); /* 发光效果用深紫色 */
-        }
+      #gameCanvas {
+        border: 4px solid #9685a1; /* 外边框 = 深紫色 */
+        border-radius: 8px;
+        background-color: #0a0a1a;
+        box-shadow: 0 0 30px rgba(74, 0, 128, 0.4); /* 发光效果用深紫色 */
+      }
 
-        /* ========================
+      /* ========================
            左右侧信息面板
         ======================== */
-        .side-panel {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 15px;
-            min-width: 130px;
-        }
+      .side-panel {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 15px;
+        min-width: 130px;
+      }
 
-        .side-panel h3 {
-            font-size: 0.9rem;
-            color: #aaaacc;
-            margin-bottom: 10px;
-            text-align: center;
-        }
+      .side-panel h3 {
+        font-size: 0.9rem;
+        color: #aaaacc;
+        margin-bottom: 10px;
+        text-align: center;
+      }
 
-        .info-box {
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
+      .info-box {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
 
-        .info-box .value {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #aaddff;
-            margin-top: 5px;
-        }
+      .info-box .value {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #aaddff;
+        margin-top: 5px;
+      }
 
-        .status-label {
-            font-size: 0.8rem;
-            color: #aaa;
-        }
+      .status-label {
+        font-size: 0.8rem;
+        color: #aaa;
+      }
 
-        .status-value {
-            font-size: 1rem;
-            font-weight: bold;
-            margin-top: 4px;
-        }
+      .status-value {
+        font-size: 1rem;
+        font-weight: bold;
+        margin-top: 4px;
+      }
 
-        .status-value.running { color: #55ff88; }
-        .status-value.paused  { color: #ffcc44; }
-        .status-value.over    { color: #ff5555; }
+      .status-value.running {
+        color: #55ff88;
+      }
+      .status-value.paused {
+        color: #ffcc44;
+      }
+      .status-value.over {
+        color: #ff5555;
+      }
 
-        /* 操作说明 */
-        .controls-list {
-            font-size: 0.75rem;
-            color: #8888aa;
-            line-height: 1.8;
-        }
+      /* 操作说明 */
+      .controls-list {
+        font-size: 0.75rem;
+        color: #8888aa;
+        line-height: 1.8;
+      }
 
-        .controls-list span {
-            color: #ccccff;
-            font-weight: bold;
-        }
+      .controls-list span {
+        color: #ccccff;
+        font-weight: bold;
+      }
 
-        /* ========================
+      /* ========================
            触屏控制按钮（手机用）
         ======================== */
+      .touch-controls {
+        display: none; /* 默认隐藏，检测到触屏时显示 */
+        margin-top: 15px;
+        gap: 10px;
+      }
+
+      .touch-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .touch-btn:active {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      .touch-row {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      /* 检测触屏时显示按钮 */
+      @media (pointer: coarse) {
         .touch-controls {
-            display: none; /* 默认隐藏，检测到触屏时显示 */
-            margin-top: 15px;
-            gap: 10px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
+      }
 
-        .touch-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.2);
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-            font-size: 1.4rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.15s;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .touch-btn:active {
-            background: rgba(255,255,255,0.25);
-        }
-
-        .touch-row {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        /* 检测触屏时显示按钮 */
-        @media (pointer: coarse) {
-            .touch-controls { display: flex; flex-direction: column; align-items: center; }
-        }
-
-        /* ========================
+      /* ========================
            弹窗（暂停 & 结束）
         ======================== */
-        .dialog-overlay {
-            display: none; /* 默认隐藏 */
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.75);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(4px);
-        }
+      .dialog-overlay {
+        display: none; /* 默认隐藏 */
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.75);
+        z-index: 100;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(4px);
+      }
 
-        .dialog-overlay.active {
-            display: flex;
-        }
+      .dialog-overlay.active {
+        display: flex;
+      }
 
+      .dialog {
+        background: linear-gradient(160deg, #1e1e3a, #2a2a50);
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        min-width: 280px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        animation: dialogIn 0.25s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      @keyframes dialogIn {
+        from {
+          transform: scale(0.85);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .dialog h2 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+      }
+
+      .dialog-pause h2 {
+        color: #b89fff;
+      }
+      .dialog-over h2 {
+        color: #ff8888;
+      }
+
+      .dialog img {
+        width: 160px;
+        height: 160px;
+        object-fit: contain;
+        border-radius: 12px;
+        margin: 10px 0;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .dialog-score {
+        font-size: 1.2rem;
+        color: #aaddff;
+        margin: 10px 0;
+      }
+
+      .dialog-hint {
+        font-size: 0.85rem;
+        color: #888;
+        margin-top: 10px;
+      }
+
+      .dialog-btn {
+        margin-top: 15px;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-family: inherit;
+        cursor: pointer;
+        transition:
+          transform 0.15s,
+          opacity 0.15s;
+        display: inline-block;
+      }
+
+      .dialog-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .dialog-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 15px;
+        flex-wrap: wrap;
+      }
+
+      .btn-restart {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #fff;
+      }
+
+      .btn-close {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        color: #fff;
+      }
+
+      /* 触屏版弹窗按钮稍大 */
+      @media (pointer: coarse) {
         .dialog {
-            background: linear-gradient(160deg, #1e1e3a, #2a2a50);
-            border: 2px solid rgba(255,255,255,0.15);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            min-width: 280px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-            animation: dialogIn 0.25s ease;
+          min-width: 300px;
+          padding: 25px;
         }
-
-        @keyframes dialogIn {
-            from { transform: scale(0.85); opacity: 0; }
-            to   { transform: scale(1);    opacity: 1; }
-        }
-
-        .dialog h2 {
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-        }
-
-        .dialog-pause h2 { color: #b89fff; }
-        .dialog-over    h2 { color: #ff8888; }
-
         .dialog img {
-            width: 160px;
-            height: 160px;
-            object-fit: contain;
-            border-radius: 12px;
-            margin: 10px 0;
-            background: rgba(255,255,255,0.05);
+          width: 200px;
+          height: 200px;
         }
-
-        .dialog-score {
-            font-size: 1.2rem;
-            color: #aaddff;
-            margin: 10px 0;
+        .dialog-buttons {
+          flex-direction: column;
+          align-items: center;
         }
-
-        .dialog-hint {
-            font-size: 0.85rem;
-            color: #888;
-            margin-top: 10px;
-        }
-
         .dialog-btn {
-            margin-top: 15px;
-            padding: 10px 30px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-family: inherit;
-            cursor: pointer;
-            transition: transform 0.15s, opacity 0.15s;
+          display: block;
+          width: 100%;
+          margin: 0;
         }
+      }
 
-        .dialog-btn:hover { transform: scale(1.05); }
-
-        .btn-restart {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: #fff;
-        }
-
-        .btn-close {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: #fff;
-        }
-
-        /* 触屏版弹窗按钮稍大 */
-        @media (pointer: coarse) {
-            .dialog { min-width: 300px; padding: 25px; }
-            .dialog img { width: 200px; height: 200px; }
-            .dialog-btn {
-                display: block;
-                width: 100%;
-                margin: 10px 0 0 0 !important;
-            }
-        }
-
-        /* ========================
+      /* ========================
            开始提示
         ======================== */
-        .start-hint {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.85);
-            border-radius: 16px;
-            padding: 30px 40px;
-            text-align: center;
-            z-index: 50;
-            backdrop-filter: blur(6px);
-        }
+      .start-hint {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.85);
+        border-radius: 16px;
+        padding: 30px 40px;
+        text-align: center;
+        z-index: 50;
+        backdrop-filter: blur(6px);
+      }
 
-        .start-hint h2 {
-            color: #aaddff;
-            margin-bottom: 15px;
-        }
+      .start-hint h2 {
+        color: #aaddff;
+        margin-bottom: 15px;
+      }
 
-        .start-hint p {
-            color: #999;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
+      .start-hint p {
+        color: #999;
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <h1>🎮 Yuzhe 的俄罗斯方块</h1>
 
     <div class="game-wrapper">
-        <!-- 左侧：操作说明 -->
-        <div class="side-panel">
-            <h3>📖 操作说明</h3>
-            <div class="controls-list">
-                <div><span>← →</span> 左右移动</div>
-                <div><span>↓</span> 加速下落</div>
-                <div><span>空格</span> 方块变形</div>
-                <div><span>P</span> 暂停 / 继续</div>
-            </div>
+      <!-- 左侧：操作说明 -->
+      <div class="side-panel">
+        <h3>📖 操作说明</h3>
+        <div class="controls-list">
+          <div><span>← →</span> 左右移动</div>
+          <div><span>↓</span> 加速下落</div>
+          <div><span>空格</span> 方块变形</div>
+          <div><span>P</span> 暂停 / 继续</div>
         </div>
+      </div>
 
-        <!-- 中间：游戏画布 -->
-        <div class="game-area">
-            <canvas id="gameCanvas"></canvas>
+      <!-- 中间：游戏画布 -->
+      <div class="game-area">
+        <canvas id="gameCanvas"></canvas>
 
-            <!-- 触屏按钮 -->
-            <div class="touch-controls">
-                <div class="touch-row">
-                    <div class="touch-btn" id="btnRotate">⟳</div>
-                    <div class="touch-btn" id="btnPause" style="background:rgba(255,200,50,0.15);border-color:rgba(255,200,50,0.3);">⏸</div>
-                </div>
-                <div class="touch-row" style="margin-top: 5px;">
-                    <div class="touch-btn" id="btnLeft">◀</div>
-                    <div class="touch-btn" id="btnDown">▼</div>
-                    <div class="touch-btn" id="btnRight">▶</div>
-                </div>
+        <!-- 触屏按钮 -->
+        <div class="touch-controls">
+          <div class="touch-row">
+            <div class="touch-btn" id="btnRotate">⟳</div>
+            <div
+              class="touch-btn"
+              id="btnPause"
+              style="
+                background: rgba(255, 200, 50, 0.15);
+                border-color: rgba(255, 200, 50, 0.3);
+              "
+            >
+              ⏸
             </div>
+          </div>
+          <div class="touch-row" style="margin-top: 5px">
+            <div class="touch-btn" id="btnLeft">◀</div>
+            <div class="touch-btn" id="btnDown">▼</div>
+            <div class="touch-btn" id="btnRight">▶</div>
+          </div>
         </div>
+      </div>
 
-        <!-- 右侧：分数和状态 -->
-        <div class="side-panel">
-            <h3>📊 游戏信息</h3>
-            <div class="info-box">
-                <div class="status-label">游戏状态</div>
-                <div class="status-value running" id="statusText">运行中</div>
-            </div>
-            <div class="info-box">
-                <div class="status-label">当前得分</div>
-                <div class="value" id="scoreText">0</div>
-            </div>
-            <div class="info-box">
-                <div class="status-label">下一个</div>
-                <canvas id="nextCanvas" width="80" height="80" style="margin-top:8px;border-radius:6px;background:#0a0a1a;"></canvas>
-            </div>
+      <!-- 右侧：分数和状态 -->
+      <div class="side-panel">
+        <h3>📊 游戏信息</h3>
+        <div class="info-box">
+          <div class="status-label">游戏状态</div>
+          <div class="status-value running" id="statusText">运行中</div>
         </div>
+        <div class="info-box">
+          <div class="status-label">当前得分</div>
+          <div class="value" id="scoreText">0</div>
+        </div>
+        <div class="info-box">
+          <div class="status-label">下一个</div>
+          <canvas
+            id="nextCanvas"
+            width="80"
+            height="80"
+            style="margin-top: 8px; border-radius: 6px; background: #0a0a1a"
+          ></canvas>
+        </div>
+      </div>
     </div>
 
     <!-- 开始提示 -->
     <div class="start-hint" id="startHint">
-        <h2>🎮 准备好了吗？</h2>
-        <p>按任意键开始游戏<br>或点击下方按钮</p>
-        <button class="dialog-btn btn-restart" style="margin-top:15px;" onclick="startGame()">开始游戏</button>
+      <h2>🎮 准备好了吗？</h2>
+      <p>按任意键开始游戏<br>或点击下方按钮</p>
+      <!-- 手机版操作提示 -->
+      <div id="mobileTips" style="display:none;margin-top:15px;text-align:left;background:rgba(255,255,255,0.06);border-radius:10px;padding:12px 15px;font-size:0.85rem;line-height:1.8;color:#bbbbdd;">
+        <div style="color:#aaddff;font-weight:bold;margin-bottom:6px;">📱 触屏操作提示</div>
+        <div>◀ ▶ — 左右移动</div>
+        <div>▼ — 加速下落（快速点击加快下落）</div>
+        <div>⟳ — 旋转方块</div>
+        <div>⏸ — 暂停 / 继续</div>
+      </div>
+      <button
+        class="dialog-btn btn-restart"
+        style="margin-top: 15px"
+        onclick="startGame()"
+      >
+        开始游戏
+      </button>
     </div>
 
     <!-- 暂停弹窗 -->
     <div class="dialog-overlay" id="pauseDialog">
-        <div class="dialog dialog-pause">
-            <h2>⏸ 游戏已暂停</h2>
-            <img id="pauseImg" src="pause.jpg" alt="暂停图片"
-                 onerror="this.style.display='none'">
-            <p class="dialog-hint" id="pauseHint">按 <strong>P</strong> 键继续游戏</p>
-            <button class="dialog-btn btn-restart" id="btnResume" onclick="togglePause()" style="display:none;margin-top:15px;">▶ 继续游戏</button>
-        </div>
+      <div class="dialog dialog-pause">
+        <h2>⏸ 游戏已暂停</h2>
+        <img
+          id="pauseImg"
+          src="pause.jpg"
+          alt="暂停图片"
+          onerror="this.style.display = 'none'"
+        />
+        <p class="dialog-hint" id="pauseHint">
+          按 <strong>P</strong> 键继续游戏
+        </p>
+        <button
+          class="dialog-btn btn-restart"
+          id="btnResume"
+          onclick="togglePause()"
+          style="display: none; margin-top: 15px"
+        >
+          ▶ 继续游戏
+        </button>
+      </div>
     </div>
 
     <!-- 结束弹窗 -->
     <div class="dialog-overlay" id="overDialog">
-        <div class="dialog dialog-over">
-            <h2>🏆 游戏结束</h2>
-            <p class="dialog-score">最终得分：<strong id="overScore">0</strong></p>
-            <img id="overImg" src="gameover.jpg" alt="结束图片"
-                 onerror="this.style.display='none'">
-            <button class="dialog-btn btn-restart" onclick="restartGame()">再来一局</button>
-            <button class="dialog-btn btn-close" style="margin-left:10px;" onclick="closeOverDialog()">关闭</button>
+      <div class="dialog dialog-over">
+        <h2>🏆 游戏结束</h2>
+        <p class="dialog-score">最终得分：<strong id="overScore">0</strong></p>
+        <img
+          id="overImg"
+          src="gameover.jpg"
+          alt="结束图片"
+          onerror="this.style.display = 'none'"
+        />
+        <div class="dialog-buttons">
+          <button class="dialog-btn btn-restart" onclick="restartGame()">
+            再来一局
+          </button>
+          <button class="dialog-btn btn-close" onclick="closeOverDialog()">
+            关闭
+          </button>
         </div>
+      </div>
     </div>
 
     <script>
-    /* ============================================================
+      /* ============================================================
        JavaScript 版俄罗斯方块
        —— 与 Java 版一一对应，方便对照学习
     ============================================================ */
 
-    // ========================
-    // 常量（对应 Java 的 private static final）
-    // ========================
-    const GAME_X = 26;   // 游戏区域行数
-    const GAME_Y = 12;   // 游戏区域列数
-    const BLOCK_SIZE = 20; // 每个格子的像素大小
+      // ========================
+      // 常量（对应 Java 的 private static final）
+      // ========================
+      const GAME_X = 26; // 游戏区域行数
+      const GAME_Y = 12; // 游戏区域列数
+      const BLOCK_SIZE = 20; // 每个格子的像素大小
 
-    // 游戏画布尺寸（与 GAME_X/GAME_Y 成正比）
-    const CANVAS_W = GAME_Y * BLOCK_SIZE;
-    const CANVAS_H = GAME_X * BLOCK_SIZE;
+      // 游戏画布尺寸（与 GAME_X/GAME_Y 成正比）
+      const CANVAS_W = GAME_Y * BLOCK_SIZE;
+      const CANVAS_H = GAME_X * BLOCK_SIZE;
 
-    // 方块颜色（和 Java 版保持一致）
-    const COLOR_BLOCK   = "#FFBBCF";  // 方块填充色（粉色）
-    const COLOR_BORDER  = "#aaa1ce";  // 边界颜色（灰紫色，和方块颜色区分）
-    const COLOR_EMPTY   = "#0a0a1a";  // 空格子背景（深蓝黑）
+      // 方块颜色（和 Java 版保持一致）
+      const COLOR_BLOCK = "#FFBBCF"; // 方块填充色（粉色）
+      const COLOR_BORDER = "#aaa1ce"; // 边界颜色（灰紫色，和方块颜色区分）
+      const COLOR_EMPTY = "#0a0a1a"; // 空格子背景（深蓝黑）
 
-    // ========================
-    // 游戏状态变量（对应 Java 的成员变量）
-    // ========================
-    let data = [];        // int[][] data —— 存储每个格子是否有方块（0=空，1=有）
-    let canvas, ctx;     // HTML5 Canvas 画布（对应 Java 的 JTextArea[][]）
-    let nextCanvas, nextCtx; // 下一个方块的预览画布
-    let isRunning = false;   // boolean isrunning
-    let isPaused  = false;   // boolean game_pause
+      // ========================
+      // 游戏状态变量（对应 Java 的成员变量）
+      // ========================
+      let data = []; // int[][] data —— 存储每个格子是否有方块（0=空，1=有）
+      let canvas, ctx; // HTML5 Canvas 画布（对应 Java 的 JTextArea[][]）
+      let nextCanvas, nextCtx; // 下一个方块的预览画布
+      let isRunning = false; // boolean isrunning
+      let isPaused = false; // boolean game_pause
 
-    let allRect = [       // int[] allRect —— 所有方块的形状定义（二进制位掩码）
-        0x00cc, 0x8888, 0x000f, 0x888f, 0xf888, 0xf111, 0x111f, 0x0eee, 0x0008,
-        0x0888, 0x000e, 0x0088, 0x000c, 0x08c8, 0x00e4, 0x04c4, 0x004e,
-        0x08c4, 0x006c, 0x04c8, 0x00c6
-    ];
-    let rect = 0;        // int rect —— 当前下落的方块形状
-    let x = 0, y = 5;    // int x, y —— 当前方块位置
-    let time = 500;      // int time —— 下落间隔（毫秒）
-    let score = 0;       // int score —— 得分
+      let allRect = [
+        // int[] allRect —— 所有方块的形状定义（二进制位掩码）
+        0x00cc, 0x8888, 0x000f, 0x088e, 0xe880, 0x7110, 0x0117, 0x0eee, 0x0008,
+        0x0888, 0x000e, 0x0088, 0x000c, 0x08c8, 0x00e4, 0x04c4, 0x004e, 0x08c4,
+        0x006c, 0x04c8, 0x00c6,
+      ];
+      let rect = 0; // int rect —— 当前下落的方块形状
+      let x = 0,
+        y = 5; // int x, y —— 当前方块位置
+      let time = 500; // int time —— 下落间隔（毫秒）
+      let score = 0; // int score —— 得分
 
-    let gameLoopTimer = null; // setInterval 的定时器
+      let gameLoopTimer = null; // setInterval 的定时器
 
-    // ========================
-    // 初始化游戏面板（对应 Java 的 initGamePanel）
-    // Java 版：用 GridLayout + JTextArea 组成游戏区域
-    // JS 版： 用 HTML5 Canvas 画布，一个像素一个像素地画
-    // ========================
-    function initGamePanel() {
+      // ========================
+      // 初始化游戏面板（对应 Java 的 initGamePanel）
+      // Java 版：用 GridLayout + JTextArea 组成游戏区域
+      // JS 版： 用 HTML5 Canvas 画布，一个像素一个像素地画
+      // ========================
+      function initGamePanel() {
         canvas = document.getElementById("gameCanvas");
-        canvas.width  = CANVAS_W;
+        canvas.width = CANVAS_W;
         canvas.height = CANVAS_H;
         ctx = canvas.getContext("2d");
 
         // 初始化 data 二维数组（GAME_X 行，GAME_Y 列）
         data = [];
         for (let i = 0; i < GAME_X; i++) {
-            data[i] = [];
-            for (let j = 0; j < GAME_Y; j++) {
-                // 边界位置（左右下三面）为 1，其余为 0
-                data[i][j] = (j === 0 || j === GAME_Y - 1 || i === GAME_X - 1) ? 1 : 0;
-            }
+          data[i] = [];
+          for (let j = 0; j < GAME_Y; j++) {
+            // 边界位置（左右下三面）为 1，其余为 0
+            data[i][j] =
+              j === 0 || j === GAME_Y - 1 || i === GAME_X - 1 ? 1 : 0;
+          }
         }
 
         // 初始化预览画布
@@ -436,201 +541,221 @@
 
         // 画初始界面
         drawAll();
-    }
+      }
 
-    // ========================
-    // 绘制所有格子（对应 Java 的 reflesh + drew + clear）
-    // 将 Java 中的 text[i][j].setBackground() 翻译为 canvas fillRect()
-    // ========================
-    function drawAll() {
+      // ========================
+      // 绘制所有格子（对应 Java 的 reflesh + drew + clear）
+      // 将 Java 中的 text[i][j].setBackground() 翻译为 canvas fillRect()
+      // ========================
+      function drawAll() {
         // 清空整个画布
         ctx.fillStyle = COLOR_EMPTY;
         ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
         // 遍历每个格子
         for (let i = 0; i < GAME_X; i++) {
-            for (let j = 0; j < GAME_Y; j++) {
-                if (j === 0 || j === GAME_Y - 1 || i === GAME_X - 1) {
-                    // 边界：用和方块一样的样式（有间隙，不填满格子）
-                    ctx.fillStyle = COLOR_BORDER;
-                    ctx.fillRect(j * BLOCK_SIZE + 1, i * BLOCK_SIZE + 1,
-                                  BLOCK_SIZE - 2, BLOCK_SIZE - 2);
-                } else if (data[i][j] === 1) {
-                    // 非边界：有方块画填充色
-                    ctx.fillStyle = COLOR_BLOCK;
-                    ctx.fillRect(j * BLOCK_SIZE + 1, i * BLOCK_SIZE + 1,
-                                  BLOCK_SIZE - 2, BLOCK_SIZE - 2);
-                }
+          for (let j = 0; j < GAME_Y; j++) {
+            if (j === 0 || j === GAME_Y - 1 || i === GAME_X - 1) {
+              // 边界：用和方块一样的样式（有间隙，不填满格子）
+              ctx.fillStyle = COLOR_BORDER;
+              ctx.fillRect(
+                j * BLOCK_SIZE + 1,
+                i * BLOCK_SIZE + 1,
+                BLOCK_SIZE - 2,
+                BLOCK_SIZE - 2,
+              );
+            } else if (data[i][j] === 1) {
+              // 非边界：有方块画填充色
+              ctx.fillStyle = COLOR_BLOCK;
+              ctx.fillRect(
+                j * BLOCK_SIZE + 1,
+                i * BLOCK_SIZE + 1,
+                BLOCK_SIZE - 2,
+                BLOCK_SIZE - 2,
+              );
             }
+          }
         }
 
         // 在画布上额外绘制当前下落的方块（因为 data 里还没更新它）
         drawCurrentBlock();
-    }
+      }
 
-    // ========================
-    // 绘制当前下落的方块（对应 Java 的 drew()）
-    // ========================
-    function drawCurrentBlock() {
+      // ========================
+      // 绘制当前下落的方块（对应 Java 的 drew()）
+      // ========================
+      function drawCurrentBlock() {
         if (!rect) return;
         let temp = 0x8000;
         ctx.fillStyle = COLOR_BLOCK;
         for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                if ((temp & rect) !== 0) {
-                    ctx.fillRect((y + j) * BLOCK_SIZE + 1,
-                                  (x + i) * BLOCK_SIZE + 1,
-                                  BLOCK_SIZE - 2, BLOCK_SIZE - 2);
-                }
-                temp >>= 1;
+          for (let j = 0; j < 4; j++) {
+            if ((temp & rect) !== 0) {
+              ctx.fillRect(
+                (y + j) * BLOCK_SIZE + 1,
+                (x + i) * BLOCK_SIZE + 1,
+                BLOCK_SIZE - 2,
+                BLOCK_SIZE - 2,
+              );
             }
+            temp >>= 1;
+          }
         }
-    }
+      }
 
-    // ========================
-    // 清除方块（对应 Java 的 clear()）
-    // 在方块移动前，把方块所在格子从画布上擦掉（重新画背景色）
-    // ========================
-    function clearBlock() {
+      // ========================
+      // 清除方块（对应 Java 的 clear()）
+      // 在方块移动前，把方块所在格子从画布上擦掉（重新画背景色）
+      // ========================
+      function clearBlock() {
         let temp = 0x8000;
         for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                if ((temp & rect) !== 0) {
-                    // 擦掉：画空颜色
-                    ctx.fillStyle = COLOR_EMPTY;
-                    ctx.fillRect((y + j) * BLOCK_SIZE, (x + i) * BLOCK_SIZE,
-                                  BLOCK_SIZE, BLOCK_SIZE);
-                    // 如果是边界位置还要重画边界
-                    if (y + j === 0 || y + j === GAME_Y - 1 || x + i === GAME_X - 1) {
-                        ctx.fillStyle = COLOR_BORDER;
-                        ctx.fillRect((y + j) * BLOCK_SIZE, (x + i) * BLOCK_SIZE,
-                                      BLOCK_SIZE, BLOCK_SIZE);
-                    }
-                }
-                temp >>= 1;
+          for (let j = 0; j < 4; j++) {
+            if ((temp & rect) !== 0) {
+              // 擦掉：画空颜色
+              ctx.fillStyle = COLOR_EMPTY;
+              ctx.fillRect(
+                (y + j) * BLOCK_SIZE,
+                (x + i) * BLOCK_SIZE,
+                BLOCK_SIZE,
+                BLOCK_SIZE,
+              );
+              // 如果是边界位置还要重画边界
+              if (y + j === 0 || y + j === GAME_Y - 1 || x + i === GAME_X - 1) {
+                ctx.fillStyle = COLOR_BORDER;
+                ctx.fillRect(
+                  (y + j) * BLOCK_SIZE,
+                  (x + i) * BLOCK_SIZE,
+                  BLOCK_SIZE,
+                  BLOCK_SIZE,
+                );
+              }
             }
+            temp >>= 1;
+          }
         }
-    }
+      }
 
-    // ========================
-    // 随机生成方块（对应 Java 的 ranRect）
-    // ========================
-    function ranRect() {
+      // ========================
+      // 随机生成方块（对应 Java 的 ranRect）
+      // ========================
+      function ranRect() {
         rect = allRect[Math.floor(Math.random() * allRect.length)];
-    }
+      }
 
-    // ========================
-    // 方块下落一层（对应 Java 的 fall）
-    // ========================
-    function fall() {
+      // ========================
+      // 方块下落一层（对应 Java 的 fall）
+      // ========================
+      function fall() {
         if (x > 0) {
-            // 擦掉上一层的方块
-            clearBlock();
+          // 擦掉上一层的方块
+          clearBlock();
         }
         x++;
         drawAll();
-    }
+      }
 
-    // ========================
-    // 判断方块能否继续下落（对应 Java 的 canFall）
-    // ========================
-    function canFall() {
+      // ========================
+      // 判断方块能否继续下落（对应 Java 的 canFall）
+      // ========================
+      function canFall() {
         let temp = 0x8000;
         for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                if ((temp & rect) !== 0) {
-                    // 检查下一行是否有方块或边界
-                    if (data[x + 1 + i] && data[x + 1 + i][y + j] === 1) {
-                        return false;
-                    }
-                }
-                temp >>= 1;
+          for (let j = 0; j < 4; j++) {
+            if ((temp & rect) !== 0) {
+              // 检查下一行是否有方块或边界
+              if (data[x + 1 + i] && data[x + 1 + i][y + j] === 1) {
+                return false;
+              }
             }
+            temp >>= 1;
+          }
         }
         return true;
-    }
+      }
 
-    // ========================
-    // 判断方块能否左/右移动（对应 Java 的 keyPressed 左右移动逻辑）
-    // ========================
-    function canMoveLeft() {
+      // ========================
+      // 判断方块能否左/右移动（对应 Java 的 keyPressed 左右移动逻辑）
+      // ========================
+      function canMoveLeft() {
         if (y <= 1) return false;
         let temp = 0x8000;
         for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                if ((temp & rect) !== 0) {
-                    if (data[x + i][y + j - 1] === 1) return false;
-                }
-                temp >>= 1;
+          for (let j = 0; j < 4; j++) {
+            if ((temp & rect) !== 0) {
+              if (data[x + i][y + j - 1] === 1) return false;
             }
+            temp >>= 1;
+          }
         }
         return true;
-    }
+      }
 
-    function canMoveRight() {
+      function canMoveRight() {
         let temp = 0x8000;
         let maxCol = 1;
-        let tmpx = x, tmpy = y;
+        let tmpx = x,
+          tmpy = y;
         for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                if ((temp & rect) !== 0) {
-                    if (tmpy + j > maxCol) maxCol = tmpy + j;
-                }
-                temp >>= 1;
+          for (let j = 0; j < 4; j++) {
+            if ((temp & rect) !== 0) {
+              if (tmpy + j > maxCol) maxCol = tmpy + j;
             }
-            tmpx++;
+            temp >>= 1;
+          }
+          tmpx++;
         }
         if (maxCol >= GAME_Y - 2) return false;
 
         temp = 0x8000;
         for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                if ((temp & rect) !== 0) {
-                    if (data[x + i][y + j + 1] === 1) return false;
-                }
-                temp >>= 1;
+          for (let j = 0; j < 4; j++) {
+            if ((temp & rect) !== 0) {
+              if (data[x + i][y + j + 1] === 1) return false;
             }
+            temp >>= 1;
+          }
         }
         return true;
-    }
+      }
 
-    // ========================
-    // 将已停止的方块写入 data（对应 Java 的 changData）
-    // ========================
-    function changData() {
+      // ========================
+      // 将已停止的方块写入 data（对应 Java 的 changData）
+      // ========================
+      function changData() {
         let temp = 0x8000;
         for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                if ((temp & rect) !== 0) {
-                    data[x + i][y + j] = 1;
-                }
-                temp >>= 1;
+          for (let j = 0; j < 4; j++) {
+            if ((temp & rect) !== 0) {
+              data[x + i][y + j] = 1;
             }
+            temp >>= 1;
+          }
         }
-    }
+      }
 
-    // ========================
-    // 判断方块能否变形（对应 Java 的 canTurn）
-    // ========================
-    function canTurn(nextRect) {
+      // ========================
+      // 判断方块能否变形（对应 Java 的 canTurn）
+      // ========================
+      function canTurn(nextRect) {
         let temp = 0x8000;
         for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-                if ((temp & nextRect) !== 0) {
-                    if (data[x + i] && data[x + i][y + j] === 1) {
-                        return false;
-                    }
-                }
-                temp >>= 1;
+          for (let j = 0; j < 4; j++) {
+            if ((temp & nextRect) !== 0) {
+              if (data[x + i] && data[x + i][y + j] === 1) {
+                return false;
+              }
             }
+            temp >>= 1;
+          }
         }
         return true;
-    }
+      }
 
-    // ========================
-    // 方块变形（对应 Java 的 keyTyped 空格键逻辑）
-    // ========================
-    function rotateBlock() {
+      // ========================
+      // 方块变形（对应 Java 的 keyTyped 空格键逻辑）
+      // ========================
+      function rotateBlock() {
         if (!isRunning || isPaused) return;
 
         let oldIndex = allRect.indexOf(rect);
@@ -638,101 +763,110 @@
 
         let nextRect;
         if (oldIndex === 1 || oldIndex === 2) {
-            nextRect = allRect[oldIndex === 1 ? 2 : 1];
+          nextRect = allRect[oldIndex === 1 ? 2 : 1];
         } else if (oldIndex >= 3 && oldIndex <= 6) {
-            nextRect = allRect[oldIndex + 1 > 6 ? 3 : oldIndex + 1];
+          nextRect = allRect[oldIndex + 1 > 6 ? 3 : oldIndex + 1];
         } else if (oldIndex === 9 || oldIndex === 10) {
-            nextRect = allRect[oldIndex === 9 ? 10 : 9];
+          nextRect = allRect[oldIndex === 9 ? 10 : 9];
         } else if (oldIndex === 11 || oldIndex === 12) {
-            nextRect = allRect[oldIndex === 11 ? 12 : 11];
+          nextRect = allRect[oldIndex === 11 ? 12 : 11];
         } else if (oldIndex >= 13 && oldIndex <= 16) {
-            nextRect = allRect[oldIndex + 1 > 16 ? 13 : oldIndex + 1];
+          nextRect = allRect[oldIndex + 1 > 16 ? 13 : oldIndex + 1];
         } else if (oldIndex === 17 || oldIndex === 18) {
-            nextRect = allRect[oldIndex === 17 ? 18 : 17];
+          nextRect = allRect[oldIndex === 17 ? 18 : 17];
         } else if (oldIndex === 19 || oldIndex === 20) {
-            nextRect = allRect[oldIndex === 19 ? 20 : 19];
+          nextRect = allRect[oldIndex === 19 ? 20 : 19];
         } else {
-            return; // 不可旋转的方块
+          return; // 不可旋转的方块
         }
 
         clearBlock();
         if (canTurn(nextRect)) {
-            rect = nextRect;
+          rect = nextRect;
         }
         drawAll();
-    }
+      }
 
-    // ========================
-    // 消除一行（对应 Java 的 removeRow）
-    // ========================
-    function removeRow(row) {
+      // ========================
+      // 消除一行（对应 Java 的 removeRow）
+      // ========================
+      function removeRow(row) {
         // 从当前行向上遍历，把上面一行的数据覆盖下来
         for (let i = row; i >= 1; i--) {
-            for (let j = 1; j < GAME_Y - 1; j++) {
-                data[i][j] = data[i - 1][j];
-            }
+          for (let j = 1; j < GAME_Y - 1; j++) {
+            data[i][j] = data[i - 1][j];
+          }
         }
-        // 重绘画布
-        drawAll();
+        // 清零最顶行（防止残留）
+        for (let j = 1; j < GAME_Y - 1; j++) {
+          data[0][j] = 0;
+        }
         // 加速（每消一行减少 100ms，最低 200ms）
         if (time > 200) time -= 100;
         // 加分
         score += 100;
         document.getElementById("scoreText").textContent = score;
-    }
+      }
 
-    // ========================
-    // 游戏主循环（对应 Java 的 game_run + game_begin）
-    // Java 用 Thread.sleep + while 循环，JS 用 setInterval
-    // ========================
-    function gameLoop() {
+      // ========================
+      // 游戏主循环（对应 Java 的 game_run + game_begin）
+      // Java 用 Thread.sleep + while 循环，JS 用 setInterval
+      // ========================
+      function gameLoop() {
         if (!isRunning || isPaused) return;
 
         // 判断能否下落
         if (!canFall()) {
-            // 不能下落：方块固定
-            changData();
+          // 不能下落：方块固定
+          changData();
 
-            // 检查是否可以消除行
-            for (let j = x; j < x + 4; j++) {
-                if (j >= 0 && j < GAME_X - 1) {
-                    let sum = 0;
-                    for (let k = 1; k <= GAME_Y - 2; k++) {
-                        if (data[j][k] === 1) sum++;
-                    }
-                    if (sum === GAME_Y - 2) {
-                        removeRow(j);
-                    }
-                }
+          // 检查是否可以消除行（从下往上，消行后重新检查同一行）
+          let checkRow = x + 3;
+          while (checkRow >= x) {
+            if (checkRow >= 0 && checkRow < GAME_X - 1) {
+              let sum = 0;
+              for (let k = 1; k <= GAME_Y - 2; k++) {
+                if (data[checkRow][k] === 1) sum++;
+              }
+              if (sum === GAME_Y - 2) {
+                removeRow(checkRow);
+                // 消行后上面行下移，同一位置是新行，不递减，重新检查
+                continue;
+              }
             }
+            checkRow--;
+          }
 
-            // 检查游戏是否结束（第3行有方块就结束）
-            for (let j = 1; j <= GAME_Y - 2; j++) {
-                if (data[3][j] === 1) {
-                    gameOver();
-                    return;
-                }
+          // 消行完毕后统一重绘
+          drawAll();
+
+          // 检查游戏是否结束（第3行有方块就结束）
+          for (let j = 1; j <= GAME_Y - 2; j++) {
+            if (data[3][j] === 1) {
+              gameOver();
+              return;
             }
+          }
 
-            // 生成下一个方块
-            ranRect();
-            x = 0;
-            y = 5;
+          // 生成下一个方块
+          ranRect();
+          x = 0;
+          y = 5;
         } else {
-            // 可以下落
-            fall();
+          // 可以下落
+          fall();
         }
-    }
+      }
 
-    function startGameLoop() {
+      function startGameLoop() {
         if (gameLoopTimer) clearInterval(gameLoopTimer);
         gameLoopTimer = setInterval(gameLoop, time);
-    }
+      }
 
-    // ========================
-    // 暂停 / 继续（对应 Java 的 P 键逻辑）
-    // ========================
-    function togglePause() {
+      // ========================
+      // 暂停 / 继续（对应 Java 的 P 键逻辑）
+      // ========================
+      function togglePause() {
         if (!isRunning) return;
         isPaused = !isPaused;
 
@@ -740,28 +874,29 @@
         let pauseDialog = document.getElementById("pauseDialog");
 
         if (isPaused) {
-            statusText.textContent = "已暂停";
-            statusText.className = "status-value paused";
-            pauseDialog.classList.add("active");
-            // 如果是触屏设备，显示继续游戏按钮
-            if (window.matchMedia("(pointer: coarse)").matches) {
-                document.getElementById("pauseHint").innerHTML = "点击下方按钮继续游戏";
-                document.getElementById("btnResume").style.display = "block";
-            }
-            if (gameLoopTimer) clearInterval(gameLoopTimer);
+          statusText.textContent = "已暂停";
+          statusText.className = "status-value paused";
+          pauseDialog.classList.add("active");
+          // 如果是触屏设备，显示继续游戏按钮
+          if (window.matchMedia("(pointer: coarse)").matches) {
+            document.getElementById("pauseHint").innerHTML =
+              "点击下方按钮继续游戏";
+            document.getElementById("btnResume").style.display = "block";
+          }
+          if (gameLoopTimer) clearInterval(gameLoopTimer);
         } else {
-            statusText.textContent = "运行中";
-            statusText.className = "status-value running";
-            pauseDialog.classList.remove("active");
-            document.getElementById("btnResume").style.display = "none";
-            startGameLoop();
+          statusText.textContent = "运行中";
+          statusText.className = "status-value running";
+          pauseDialog.classList.remove("active");
+          document.getElementById("btnResume").style.display = "none";
+          startGameLoop();
         }
-    }
+      }
 
-    // ========================
-    // 游戏结束（对应 Java 的结束弹窗逻辑）
-    // ========================
-    function gameOver() {
+      // ========================
+      // 游戏结束（对应 Java 的结束弹窗逻辑）
+      // ========================
+      function gameOver() {
         isRunning = false;
         if (gameLoopTimer) clearInterval(gameLoopTimer);
 
@@ -771,23 +906,25 @@
 
         document.getElementById("overScore").textContent = score;
         document.getElementById("overDialog").classList.add("active");
-    }
+      }
 
-    // ========================
-    // 开始 / 重开游戏
-    // ========================
-    function startGame() {
+      // ========================
+      // 开始 / 重开游戏
+      // ========================
+      function startGame() {
         document.getElementById("startHint").style.display = "none";
         restartGame();
-    }
+      }
 
-    function restartGame() {
+      function restartGame() {
         // 重置所有状态
         score = 0;
         time = 500;
         isRunning = true;
         isPaused = false;
-        x = 0; y = 5; rect = 0;
+        x = 0;
+        y = 5;
+        rect = 0;
 
         // 关闭所有弹窗
         document.getElementById("pauseDialog").classList.remove("active");
@@ -805,112 +942,131 @@
 
         // 开始主循环
         startGameLoop();
-    }
+      }
 
-    function closeOverDialog() {
+      function closeOverDialog() {
         document.getElementById("overDialog").classList.remove("active");
-    }
+      }
 
-    // ========================
-    // 键盘监听（对应 Java 的 KeyListener）
-    // Java 用 KeyEvent.getKeyCode()，JS 用 event.key
-    // ========================
-    document.addEventListener("keydown", function(e) {
+      // ========================
+      // 键盘监听（对应 Java 的 KeyListener）
+      // Java 用 KeyEvent.getKeyCode()，JS 用 event.key
+      // ========================
+      document.addEventListener("keydown", function (e) {
         // 如果游戏还没开始，按任意键开始
-        if (!isRunning && document.getElementById("startHint").style.display !== "none") {
-            startGame();
-            return;
+        if (
+          !isRunning &&
+          document.getElementById("startHint").style.display !== "none"
+        ) {
+          startGame();
+          return;
         }
 
         if (!isRunning) return;
 
         // P 键：暂停 / 继续
         if (e.key === "p" || e.key === "P") {
-            togglePause();
-            return;
+          togglePause();
+          return;
         }
 
         // 暂停时不响应其他键
         if (isPaused) return;
 
         switch (e.key) {
-            case "ArrowLeft":
-                e.preventDefault();
-                if (canMoveLeft()) {
-                    clearBlock();
-                    y--;
-                    drawAll();
-                }
-                break;
-            case "ArrowRight":
-                e.preventDefault();
-                if (canMoveRight()) {
-                    clearBlock();
-                    y++;
-                    drawAll();
-                }
-                break;
-            case "ArrowDown":
-                e.preventDefault();
-                if (canFall()) {
-                    clearBlock();
-                    x++;
-                    drawAll();
-                }
-                break;
-            case " ":
-                e.preventDefault();
-                rotateBlock();
-                break;
+          case "ArrowLeft":
+            e.preventDefault();
+            if (canMoveLeft()) {
+              clearBlock();
+              y--;
+              drawAll();
+            }
+            break;
+          case "ArrowRight":
+            e.preventDefault();
+            if (canMoveRight()) {
+              clearBlock();
+              y++;
+              drawAll();
+            }
+            break;
+          case "ArrowDown":
+            e.preventDefault();
+            if (canFall()) {
+              clearBlock();
+              x++;
+              drawAll();
+            }
+            break;
+          case " ":
+            e.preventDefault();
+            rotateBlock();
+            break;
         }
-    });
+      });
 
-    // ========================
-    // 触屏按钮监听（手机用户）
-    // ========================
-    function setupTouchButton(id, action) {
+      // ========================
+      // 触屏按钮监听（手机用户）
+      // ========================
+      function setupTouchButton(id, action) {
         const btn = document.getElementById(id);
         if (!btn) return;
 
         // 触摸开始时立即响应
-        btn.addEventListener("touchstart", function(e) {
-            e.preventDefault();
-            action();
+        btn.addEventListener("touchstart", function (e) {
+          e.preventDefault();
+          action();
         });
         // 鼠标点击（桌面调试用）
-        btn.addEventListener("mousedown", function(e) {
-            e.preventDefault();
-            action();
+        btn.addEventListener("mousedown", function (e) {
+          e.preventDefault();
+          action();
         });
-    }
+      }
 
-    setupTouchButton("btnLeft",  () => {
+      setupTouchButton("btnLeft", () => {
         if (!isRunning || isPaused) return;
-        if (canMoveLeft()) { clearBlock(); y--; drawAll(); }
-    });
-    setupTouchButton("btnRight", () => {
+        if (canMoveLeft()) {
+          clearBlock();
+          y--;
+          drawAll();
+        }
+      });
+      setupTouchButton("btnRight", () => {
         if (!isRunning || isPaused) return;
-        if (canMoveRight()) { clearBlock(); y++; drawAll(); }
-    });
-    setupTouchButton("btnDown",  () => {
+        if (canMoveRight()) {
+          clearBlock();
+          y++;
+          drawAll();
+        }
+      });
+      setupTouchButton("btnDown", () => {
         if (!isRunning || isPaused) return;
-        if (canFall()) { clearBlock(); x++; drawAll(); }
-    });
-    setupTouchButton("btnRotate", () => {
+        if (canFall()) {
+          clearBlock();
+          x++;
+          drawAll();
+        }
+      });
+      setupTouchButton("btnRotate", () => {
         rotateBlock();
-    });
-    setupTouchButton("btnPause", () => {
+      });
+      setupTouchButton("btnPause", () => {
         togglePause();
-    });
+      });
 
-    // ========================
-    // 初始化（页面加载时执行，对应 Java 构造函数里的逻辑）
-    // ========================
-    window.onload = function() {
+      // ========================
+      // 初始化（页面加载时执行，对应 Java 构造函数里的逻辑）
+      // ========================
+      window.onload = function () {
         initGamePanel();
         // 预热随机数（避免首个方块每次都一样）
         Math.random();
-    };
+        // 触屏设备显示操作提示
+        if (window.matchMedia("(pointer: coarse)").matches) {
+          document.getElementById("mobileTips").style.display = "block";
+        }
+      };
     </script>
-</body>
+  </body>
 </html>
